@@ -1,4 +1,4 @@
-package com.example.writeonthego.ui.theme
+package com.example.writeonthego.ui.theme.theme
 
 import androidx.compose.ui.graphics.Color
 
