@@ -1,5 +1,4 @@
-package com.example.writeonthego.ui.theme.theme
-
+package com.dbtechprojects.photonotes.ui.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Shapes
