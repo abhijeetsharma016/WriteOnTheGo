@@ -1,4 +1,5 @@
-package com.example.writeonthego.ui.theme.EditNote
+package com.example.writeonthego.ui.theme.CreateNote
+
 
 import android.annotation.SuppressLint
 import android.net.Uri
@@ -35,19 +36,15 @@ import kotlinx.coroutines.launch
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun NoteEditScreen(noteId: Int, navController: NavController, viewModel: NotesViewModel) {
-    val scope = rememberCoroutineScope()
-    val note = remember {
-        mutableStateOf(Constants.noteDetailPlaceHolder)
-    }
+fun CreateNoteScreen(navController: NavController, viewModel: NotesViewModel) {
     val currentNote = remember {
-        mutableStateOf(note.value.note)
+        mutableStateOf("")
     }
     val currentTitle = remember {
-        mutableStateOf((note.value.title))
+        mutableStateOf("")
     }
     val currentPhotos = remember {
-        mutableStateOf(note.value.imageUri)
+        mutableStateOf("")
     }
     val saveButtonState = remember {
         mutableStateOf(false)
@@ -61,18 +58,6 @@ fun NoteEditScreen(noteId: Int, navController: NavController, viewModel: NotesVi
         }
 
         currentPhotos.value = uri.toString()
-
-        if (currentPhotos.value != note.value.imageUri) {
-            saveButtonState.value = true
-        }
-    }
-    LaunchedEffect(true) {
-        scope.launch(Dispatchers.IO) {
-            note.value = viewModel.getNote(noteId) ?: Constants.noteDetailPlaceHolder
-            currentNote.value = note.value.note
-            currentTitle.value = note.value.title
-            currentPhotos.value = note.value.imageUri
-        }
     }
 
     WriteOnTheGoTheme {
@@ -80,15 +65,12 @@ fun NoteEditScreen(noteId: Int, navController: NavController, viewModel: NotesVi
             Scaffold(
                 topBar = {
                     GenericAppBar(
-                        title = "Edit Note",
+                        title = "Create Note",
                         onIconClick = {
-                            viewModel.updateNote(
-                                Note(
-                                    id = note.value.id,
-                                    note = currentNote.value,
-                                    title = currentTitle.value,
-                                    imageUri = currentPhotos.value
-                                )
+                            viewModel.createNote(
+                                currentTitle.value,
+                                currentNote.value,
+                                currentPhotos.value
                             )
                             navController.popBackStack()
                         },
@@ -103,13 +85,13 @@ fun NoteEditScreen(noteId: Int, navController: NavController, viewModel: NotesVi
                     )
                 },
                 floatingActionButton = {
-                                       NotesFab(
-                                           contentDescriptipon = stringResource(R.string.add_photo),
-                                           action ={
-                                               getImageRequest.launch(arrayOf("image/*"))
-                                           },
-                                           icon = R.drawable.camera
-                                           )
+                    NotesFab(
+                        contentDescriptipon = stringResource(R.string.add_photo),
+                        action ={
+                            getImageRequest.launch(arrayOf("image/*"))
+                        },
+                        icon = R.drawable.camera
+                    )
                 },
                 content = {
                     Column(
@@ -117,7 +99,7 @@ fun NoteEditScreen(noteId: Int, navController: NavController, viewModel: NotesVi
                             .padding(12.dp)
                             .fillMaxSize()
                     ) {
-                        if (currentPhotos.value != null && currentPhotos.value!!.isNotEmpty()) {
+                        if (currentPhotos.value!!.isNotEmpty()) {
                             Image(
                                 painter = rememberAsyncImagePainter(
                                     ImageRequest
@@ -135,39 +117,33 @@ fun NoteEditScreen(noteId: Int, navController: NavController, viewModel: NotesVi
                         }
                         TextField(
                             value = currentTitle.value,
+                            modifier = Modifier.fillMaxWidth(),
                             colors = TextFieldDefaults.textFieldColors(
                                 cursorColor = Color.Black,
                                 focusedLabelColor = Color.Black,
                             ),
                             onValueChange ={value->
                                 currentTitle.value= value
-                                if(currentTitle.value != note.value.title){
-                                    saveButtonState.value = true
-                                }else if(currentNote.value == note.value.note &&
-                                    currentTitle.value == note.value.title){
-                                    saveButtonState.value = false
-                                }
+                                saveButtonState.value = currentTitle.value!= "" && currentNote.value != ""
                             },
                             label = { Text(text = "Title") }
                         )
                         Spacer(modifier = Modifier.padding(12.dp))
                         TextField(
                             value = currentTitle.value,
+                            modifier = Modifier
+                                .fillMaxHeight(0.5f)
+                                .fillMaxWidth(),
+
                             colors = TextFieldDefaults.textFieldColors(
                                 cursorColor = Color.Black,
-                                focusedLabelColor =Color.Black
+                                focusedLabelColor = Color.Black
                             ),
-                            onValueChange ={value->
+                            onValueChange = { value ->
                                 currentNote.value = value
-                                if(currentNote.value != note.value.note){
-                                    saveButtonState.value = true
-                                }
-                                else if(currentNote.value == note.value.note &&
-                                    currentTitle.value == note.value.title){
-                                    saveButtonState.value = false
-                                }
+                                saveButtonState.value = currentTitle.value!= "" && currentNote.value != ""
                             },
-                            label = { Text(text = "Body") }
+                            label = { Text(text = "Body")}
                         )
                     }
                 }
