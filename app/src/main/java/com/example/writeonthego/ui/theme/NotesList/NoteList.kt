@@ -10,14 +10,23 @@ import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -27,6 +36,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.SearchBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -43,16 +53,20 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.dbtechprojects.photonotes.ui.theme.WriteOnTheGoTheme
+import com.dbtechprojects.photonotes.ui.theme.noteBGBlue
+import com.dbtechprojects.photonotes.ui.theme.noteBGYellow
 import com.example.writeonthego.Constants
 import com.example.writeonthego.Constants.orPlaceHolderList
 import com.example.writeonthego.R
 import com.example.writeonthego.WriteOnTheGoApp
 import com.example.writeonthego.model.Note
+import com.example.writeonthego.model.getDay
 import com.example.writeonthego.ui.theme.GenericAppBar
 import com.example.writeonthego.ui.theme.NotesViewModel
 import kotlinx.coroutines.Dispatchers
@@ -170,6 +184,135 @@ fun SearchBar(query: MutableState<String>) {
                 }
 
             })
-
     }
 }
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun NotesList(
+    notes:List<Note>,
+    openDialog: MutableState<Boolean>,
+    query: MutableState<String>,
+    deleteText: MutableState<String>,
+    navController: NavController,
+    notesToDelete: MutableState<List<Note>>,
+    ){
+    var previousHeader = ""
+    LazyColumn(
+        contentPadding = PaddingValues(12.dp),
+        modifier = Modifier.background(MaterialTheme.colors.primary)
+    ) {
+        val queriedNotes = if (query.value.isEmpty()){
+            notes
+        } else {
+            notes.filter { it.note.contains(query.value) || it.title.contains(query.value) }
+        }
+        itemsIndexed(queriedNotes) { index, note ->
+            if (note.getDay() != previousHeader) {
+                Column(
+                    modifier = Modifier
+                        .padding(6.dp)
+                        .fillMaxWidth()
+                ) {
+                    Text(text = note.getDay(), color = Color.Black)
+                }
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(6.dp)
+                )
+                previousHeader =  note.getDay()
+            }
+
+            NoteListItem(
+                note,
+                openDialog,
+                deleteText = deleteText ,
+                navController,
+                notesToDelete = notesToDelete,
+                noteBackGround = if (index % 2 == 0) {
+                    noteBGYellow
+                } else noteBGBlue
+            )
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(12.dp)
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun NoteListItem(
+    note: Note,
+    openDialog: MutableState<Boolean>,
+    deleteText: MutableState<String>,
+    navController: NavController,
+    noteBackGround: Color,
+    notesToDelete: MutableState<List<Note>>
+) {
+    return Box(modifier = Modifier.height(120.dp).clip(RoundedCornerShape(12.dp))) {
+        Column(
+            modifier = Modifier
+                .background(noteBackGround)
+                .fillMaxWidth()
+                .height(120.dp)
+                .combinedClickable(interactionSource = remember { MutableInteractionSource() },
+                    indication = rememberRipple(bounded = false), // You can also change the color and radius of the ripple
+                    onClick = {
+                        if (note.id != 0) {
+                            navController.navigate(Constants.noteDetailNavigation(note.id ?: 0))
+                        }
+                    },
+                    onLongClick = {
+                        if (note.id != 0) {
+                            openDialog.value = true
+                            deleteText.value = "Are you sure you want to delete this note ?"
+                            notesToDelete.value = mutableListOf(note)
+                        }
+                    }
+                )
+        ) {
+            Row() {
+                if (note.imageUri != null && note.imageUri.isNotEmpty()) {
+                    // load firs image into view
+                    Image(
+                        painter = rememberAsyncImagePainter(
+                            ImageRequest
+                                .Builder(LocalContext.current)
+                                .data(data = Uri.parse(note.imageUri))
+                                .build()
+                        ),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxWidth(0.3f),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+                Column() {
+                    Text(
+                        text = note.title,
+                        color = Color.Black,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(horizontal = 12.dp)
+                    )
+                    Text(
+                        text = note.note,
+                        color = Color.Black,
+                        maxLines = 3,
+                        modifier = Modifier.padding(12.dp)
+                    )
+                    Text(
+                        text = note.dateUpdated,
+                        color = Color.Black,
+                        modifier = Modifier.padding(horizontal = 12.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+

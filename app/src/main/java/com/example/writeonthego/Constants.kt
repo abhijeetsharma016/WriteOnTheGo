@@ -11,6 +11,7 @@ object Constants {
 
 
     fun noteEditNavigation(noteId: Int) = "noteEdit/$noteId"
+    fun noteDetailNavigation(noteId : Int) = "noteDetail/$noteId"
     @RequiresApi(Build.VERSION_CODES.O)
     fun List<Note>?.orPlaceHolderList(): List<Note> {
         fun placeHolderList(): List<Note> {
