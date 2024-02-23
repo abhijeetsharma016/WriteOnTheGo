@@ -28,6 +28,7 @@ import com.example.writeonthego.R
 import com.example.writeonthego.WriteOnTheGoApp
 import com.example.writeonthego.model.Note
 import com.example.writeonthego.ui.theme.GenericAppBar
+import com.example.writeonthego.ui.theme.NotesList.NotesFab
 import com.example.writeonthego.ui.theme.NotesViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -86,7 +87,7 @@ fun CreateNoteScreen(navController: NavController, viewModel: NotesViewModel) {
                 },
                 floatingActionButton = {
                     NotesFab(
-                        contentDescriptipon = stringResource(R.string.add_photo),
+                        contentDescription = stringResource(R.string.add_photo),
                         action ={
                             getImageRequest.launch(arrayOf("image/*"))
                         },
