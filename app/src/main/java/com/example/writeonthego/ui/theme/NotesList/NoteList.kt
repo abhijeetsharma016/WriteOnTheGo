@@ -72,7 +72,7 @@ import com.example.writeonthego.ui.theme.NotesViewModel
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun NoteList(noteId: Int, navController: NavController, viewModel: NotesViewModel) {
+fun NoteList(navController: NavController, viewModel: NotesViewModel) {
     val openDialog = remember {
         mutableStateOf(false)
     }
