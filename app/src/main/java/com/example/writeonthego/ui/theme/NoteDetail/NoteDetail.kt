@@ -83,6 +83,7 @@ fun NoteDetailScreen(noteId: Int, navController: NavController, viewModel: Notes
                         ImageRequest
                             .Builder(LocalContext.current)
                             .data(data = Uri.parse(note.value.imageUri))
+                            .build()
                     ),
                         contentDescription = null,
                         modifier = Modifier
