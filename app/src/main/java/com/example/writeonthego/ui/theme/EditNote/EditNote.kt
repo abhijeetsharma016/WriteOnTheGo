@@ -154,7 +154,7 @@ fun NoteEditScreen(noteId: Int, navController: NavController, viewModel: NotesVi
                         )
                         Spacer(modifier = Modifier.padding(12.dp))
                         TextField(
-                            value = currentTitle.value,
+                            value = currentNote.value,
                             colors = TextFieldDefaults.textFieldColors(
                                 cursorColor = Color.Black,
                                 focusedLabelColor =Color.Black

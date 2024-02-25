@@ -80,7 +80,7 @@ fun CreateNoteScreen(navController: NavController, viewModel: NotesViewModel) {
                                 imageVector = ImageVector.vectorResource(R.drawable.save),
                                 contentDescription = stringResource(R.string.save_note),
                                 tint = Color.Black
-                            )
+                                )
                         },
                         iconState = saveButtonState
                     )
@@ -131,7 +131,7 @@ fun CreateNoteScreen(navController: NavController, viewModel: NotesViewModel) {
                         )
                         Spacer(modifier = Modifier.padding(12.dp))
                         TextField(
-                            value = currentTitle.value,
+                            value = currentNote.value,
                             modifier = Modifier
                                 .fillMaxHeight(0.5f)
                                 .fillMaxWidth(),
