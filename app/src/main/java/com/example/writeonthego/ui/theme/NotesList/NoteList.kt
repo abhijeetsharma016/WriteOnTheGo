@@ -93,7 +93,7 @@ fun NoteList(navController: NavController, viewModel: NotesViewModel) {
             Scaffold(
                 topBar = {
                     GenericAppBar(
-                        title = "Edit Note",
+                        title = "WriteOnTheGo Home",
                         onIconClick = {
                                       if(notes.value?.isNotEmpty() == true){
                                           openDialog.value = true
